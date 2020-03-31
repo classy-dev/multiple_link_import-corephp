@@ -1,4 +1,5 @@
 <?php
+
 require_once 'config.php';
 use IT\Data;
 use IT\Plugins\AltoRouter;

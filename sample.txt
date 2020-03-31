@@ -1,0 +1,8 @@
+Link Title|Video Link|Alt Embed Link|Custom Slug
+
+tt0017925|https://drive.google.com/file/d/1-9eB_pvRiO_Lm_mq2NTGbGNUM11Y-CUL/view|https://alternate-embed.com/tt0017925|tt0017925
+tt123456|https://drive.google.com/file/d/1-9eB_pvRiO_Lm_mq2NTGbGNUM11Y-CUL/view|https://alternate-embed.com/tt123456|tt123456
+tt654321|https://drive.google.com/file/d/1-9eB_pvRiO_Lm_mq2NTGbGNUM11Y-CUL/view|https://alternate-embed.com/tt654321|tt654321
+
+Link Title|Video Link|Alt Embed Link|Custom Slug
+Subtitle File|Subtitle Label

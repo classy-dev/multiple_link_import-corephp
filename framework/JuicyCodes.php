@@ -247,7 +247,8 @@ class JuicyCodes
     {
         $parse = parse_url(trim($link));
         if ($parse["host"] == "docs.google.com" || $parse["host"] == "drive.google.com") {
-            parse_str($parse["query"]);
+            if(isset($parse["query"]))
+                parse_str($parse["query"]);
             if (empty($id)) {
                 preg_match_all("@d/(.*)/@i", $link, $m);
                 $id = $m["1"]["0"];

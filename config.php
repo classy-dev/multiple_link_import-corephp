@@ -14,13 +14,13 @@
 define("DB_HOST", 'localhost');
 
 /** MySQL database username */
-define("DB_USER", 'voucher24jam_demo');
+define("DB_USER", 'root');
 
 /** MySQL database password */
-define("DB_PASS", '!Q@W#E$R');
+define("DB_PASS", '');
 
 /** MySQL database name */
-define("DB_NAME", 'voucher24jam_demo');
+define("DB_NAME", 'file_import');
 
 /** PHP Error Reporting */
 define("DEBUG", false);
@@ -48,3 +48,7 @@ if (!defined('JUICYCODES')) {
 
 /** Initialize required components */
 require_once ABSPATH . '/framework/init.php';
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);

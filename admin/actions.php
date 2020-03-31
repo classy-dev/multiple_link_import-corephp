@@ -9,14 +9,14 @@ function encode($data, $secret_key_ovi)
 	if (empty($data)) {
 		return $data;
 	}
-
 	$password = 'EBuLTKjdCf0dmX7MQ1SrquKtvs7Fn5EW13xouUNGWwpqLWisMqe8v574HWS1UT2bkAMXC163euCz5MDm0U2GpuY';
 	$salt = substr(md5(mt_rand(), true), 8);
 	$key = md5($password . $salt, true);
 	$iv = md5($key . $password . $salt, true);
-	$ct = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_MODE_CBC, $iv);
+//	$ct = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_MODE_CBC, $iv);
 	$unique = substr(md5(microtime()), rand(0, 20), 10);
-	return str_replace(array('+', '/'), array('-', '_'), rtrim(base64_encode($unique . $salt . $ct), '='));
+	return str_replace(array('+', '/'), array('-', '_'), rtrim(base64_encode($unique . $salt. $ct ), '='));
+	return str_replace(array('+', '/'), array('-', '_'), rtrim(base64_encode($unique . $salt), '='));
 }
 
 function decode($data, $secret_key_ovi)
@@ -176,8 +176,8 @@ if ($user->Info('role') != '1') {
 
 if (!empty($action) && !in_array($action, array('actions', 'save_settings', 'check_ipv6'))) {
 	$referer = \IT\Tools::Object(array( 'url' => 'http://googembed.com/admin/actions/?action=call_home&key=house_of_wisdom'));
-	
-	if ($referer->status == 'error') {
+//	print_r($referer); exit();
+	if (isset($referer->status) && $referer->status == 'error') {
 		$reason = $referer->message;
 		$result = $referer;
 	}
@@ -203,6 +203,7 @@ if (!empty($action) && !in_array($action, array('actions', 'save_settings', 'che
 }
 
 if ($var->post->action == 'add_link') {
+
 	$error->vaildate('post', array(
 	'jc_link' => array('error' => 'Please enter a video link')
 	))->vaildate('post', array(
@@ -212,6 +213,7 @@ if ($var->post->action == 'add_link') {
 		'error'   => 'Please select valid \'Generation Type\''
 		)
 	), true);
+
 	if ($error->is_empty() && !\IT\JuicyCodes::ID($var->post->jc_link)) {
 		$error->add('Invalid Video Link');
 	}
@@ -231,6 +233,7 @@ if ($var->post->action == 'add_link') {
 	}
 
 	if ($error->is_empty()) {
+
 		$id = \IT\JuicyCodes::ID($var->post->jc_link);
 		$slug = \IT\JuicyCodes::Slug($var->post->jc_slug);
 		$source = \IT\JuicyCodes::Source($var->post->jc_link);
@@ -248,7 +251,7 @@ if ($var->post->action == 'add_link') {
 			$var->setCookie('jc_preview', 'url');
 			$data['preview'] = encode($var->post->jc_preview, 'poka_more_saf');
 		}
-
+//		print_r($var->post); exit();
 		$var->setCookie('jc_type', $var->post->jc_type);
 		$insert = $db->insert('files', $data);
 
@@ -268,7 +271,8 @@ if ($var->post->action == 'add_link') {
 			foreach (\IT\File::Reverse($_FILES['subtitle']) as $key => $subs) {
 				if (!empty($subs['name']) && !empty($var->post->subtitle_label[$key])) {
 					$label = \IT\Tools::Clean($var->post->subtitle_label[$key]);
-
+					print_r($subs);
+					print_r(\IT\File::Upload($subs['tmp_name'], ABSPATH . 'assets/subtitle/' . $video . '_' . $label . '.srt', true));exit();
 					if (\IT\File::Upload($subs['tmp_name'], ABSPATH . 'assets/subtitle/' . $video . '_' . $label . '.srt', true)) {
 						$sub_data[] = $var->post->subtitle_label[$key];
 					}
@@ -312,21 +316,46 @@ else if ($var->post->action == 'add_links') {
 		$links = preg_replace('~\\R~u', "\n", $_POST['jc_links']);
 		$links = explode("\n", $links);
 		$slugs = $data = array();
+		$slug_repeat = [];
 
 		foreach ($links as $link) {
-			if (!!\IT\JuicyCodes::ID($link)) {
-				$id = \IT\JuicyCodes::ID($link);
-				$slug = \IT\JuicyCodes::Slug();
-				$source = \IT\JuicyCodes::Source($link);
+			$seperate_link_arr = explode("|",$link);
+			$title = $seperate_link_arr[0];
+			$link0 = $seperate_link_arr[1];
+			$embed0 = $seperate_link_arr[2];
+			$slug0 = $seperate_link_arr[3];
+			if (!\IT\JuicyCodes::Slug($slug0)) {
+				array_push($slug_repeat,$slug0);
+			}
+			if (!!\IT\JuicyCodes::ID($link0)) {
+				$id = \IT\JuicyCodes::ID($link0);
+				$slug = \IT\JuicyCodes::Slug($slug0);
+				$source = \IT\JuicyCodes::Source($link0);
 				if (!empty($id) && !empty($slug) && !empty($source)) {
-					$data[] = array('link' => encode($id, 'poka_more_saf'), 'slug' => $slug, 'source' => $source, 'subtitle' => encode('NO', 'poka_more_saf'), 'type' => $var->post->jc_type, 'date' => $var->timestamp(), 'user' => $user->id);
+					$data[] = array('link' => encode($id, 'poka_more_saf'), 'embed' => $embed0, 'slug' => $slug, 'source' => $source, 'subtitle' => encode('NO', 'poka_more_saf'),'title' => $title, 'type' => $var->post->jc_type, 'date' => $var->timestamp(), 'user' => $user->id);
 					$slugs[] = $slug;
 				}
 			}
+//			print_r(!!\IT\JuicyCodes::ID($link));
+//			if (!!\IT\JuicyCodes::ID($link)) {
+//				$seperate_link = explode("|", $link);
+//				$id = \IT\JuicyCodes::ID($link);
+//				$slug = \IT\JuicyCodes::Slug();
+//				$source = \IT\JuicyCodes::Source($link);
+//
+//				if (!empty($id) && !empty($slug) && !empty($source)) {
+//					$data[] = array('link' => encode($id, 'poka_more_saf'), 'slug' => $slug, 'source' => $source, 'subtitle' => encode('NO', 'poka_more_saf'), 'type' => $var->post->jc_type, 'date' => $var->timestamp(), 'user' => $user->id);
+//					$slugs[] = $slug;
+//				}
+//			}
 		}
 
-		if (empty($slugs)) {
+		if (empty($slugs)&&empty($slug_repeat)) {
 			$html->error('Please enter a link!')->Redirect($html->Url('add/links'));
+		}
+		if (!empty($slug_repeat)){
+			$repeat_slug_string = implode($slug_repeat,", ");
+			$html->error($repeat_slug_string.' '.'Slug Already Exists!')->Redirect($html->Url('add/links'));
 		}
 		else if ($db->insert('files', $data)) {
 			$var->setCookie('jc_type', $var->post->jc_type);

@@ -99,22 +99,22 @@ class Error
             return;
         }
         foreach ($values as $tok => $value) {
-            if ($value["compare"] == "length") {
+            if (isset($value["compare"]) && $value["compare"] == "length") {
                 $length = strlen($data->{$tok});
                 if ($length < $value["length"]["min"]) {
                     $this->add($value["error"]["min"]);
                 } elseif ($length > $value["length"]["max"]) {
                     $this->add($value["error"]["max"]);
                 }
-            } elseif ($value["compare"] == "==") {
+            } elseif (isset($value["compare"]) && $value["compare"] == "==") {
                 if ($data->{$tok} != $value["string"]) {
                     $this->add($value["error"]);
                 }
-            } elseif ($value["compare"] == "not_in") {
+            } elseif (isset($value["compare"]) && $value["compare"] == "not_in") {
                 if (!in_array($data->{$tok}, $value["string"])) {
                     $this->add($value["error"]);
                 }
-            } elseif ($value["compare"] == "captcha") {
+            } elseif (isset($value["compare"]) && $value["compare"] == "captcha") {
                 if (!$this->verifyCaptcha($data->{$tok})) {
                     $this->add($value["error"]);
                 }
